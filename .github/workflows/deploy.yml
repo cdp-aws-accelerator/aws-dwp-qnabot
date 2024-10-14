@@ -1,0 +1,47 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-cdk:
+    runs-on: ubuntu-latest
+
+    # run in the source directory
+    defaults:
+      run:
+        working-directory: ./source
+
+    # pipeline steps
+    steps:
+      # config
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-user
+
+      - name: installs
+        run: |
+          pip install virtualenv
+          npm install
+          sed -i 's/"devEmail": ""/"devEmail": "${{ secrets.DEV_EMAIL }}"/g' config.json
+
+      - name: bootstrap
+        run: |
+          npm bootstrap
+          npm run up
+          npm run update
+      
+      
