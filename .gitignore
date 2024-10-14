@@ -58,7 +58,6 @@ typings/
 .env
 
 build
-source/config.json
 **/.DS_Store
 .idea/
 

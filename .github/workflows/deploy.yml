@@ -32,6 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./source/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('./source/package-lock.json') }}
 
       - name: setup
         working-directory: ./source
