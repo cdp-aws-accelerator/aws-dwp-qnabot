@@ -11,11 +11,6 @@ jobs:
   deploy-cdk:
     runs-on: ubuntu-latest
 
-    # run in the source directory
-    defaults:
-      run:
-        working-directory: ./source
-
     # pipeline steps
     steps:
       # config
@@ -32,13 +27,25 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: github-user
 
-      - name: installs
+      - name: cache node_modules
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ./source/node_modules
+
+      - name: setup
+        working-directory: ./source
         run: |
           pip install virtualenv
-          npm install
           sed -i 's/"devEmail": ""/"devEmail": "${{ secrets.DEV_EMAIL }}"/g' config.json
 
+      - name: install
+        working-directory: ./source
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+
       - name: bootstrap
+        working-directory: ./source
         run: |
           npm bootstrap
           npm run up
