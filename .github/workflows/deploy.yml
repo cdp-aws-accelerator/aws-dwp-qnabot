@@ -48,7 +48,7 @@ jobs:
       - name: bootstrap
         working-directory: ./source
         run: |
-          npm bootstrap
+          npm run bootstrap
           npm run up
           npm run update
       
